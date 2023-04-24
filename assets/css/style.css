@@ -1,0 +1,77 @@
+:root {
+  --boxShadow: 0 2px 15px -3px rgba(0, 0, 0, 0.2),
+    0 10px 20px -2px rgba(0, 0, 0, 0.2);
+}
+
+body,
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.body-container {
+  width: 90%;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  padding: 40px;
+}
+
+#todoListForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  min-width: 80%;
+  box-shadow: var(--boxShadow);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+#todoListForm ul.todoListInputs {
+  list-style-type: none;
+  padding: 0;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  gap: 10px;
+}
+
+#todoListForm ul.todoListInputs li {
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+#todoListForm ul.todoListInputs li label {
+  flex-grow: 1;
+}
+
+#todoListForm ul.todoListInputs li input {
+  flex-grow: 11;
+  padding: 1px 5px;
+}
+
+#todoListForm button {
+  border: 0;
+  padding: 5px 40px;
+  border-radius: 5px;
+  /* box-shadow: var(--boxShadow); */
+  transition: all 0.2s ease-in-out;
+  background-color: black;
+  color: white;
+  border: 1px solid black;
+}
+
+#todoListForm button:hover {
+  background-color: #fff;
+  color: black;
+}
