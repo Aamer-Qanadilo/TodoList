@@ -21,10 +21,6 @@ const inputsErrorMessage = {
 
 let inputsError = [];
 
-// function updateLocalStorage() {
-//   localStorage.setItem("specialProducts", JSON.stringify(products));
-// }
-
 todoListForm.addEventListener("keyup", (event) => {
   if (event.target.tagName !== "INPUT") return;
 
@@ -96,4 +92,7 @@ addTaskBtn.onclick = function () {
   checkAllInputs();
 
   if (inputsError.length !== 0) return;
+
+  //   Here I add the new task to the list and then clear the form
+  clearForm();
 };
