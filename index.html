@@ -19,16 +19,28 @@
     <div class="body-container">
       <form action="#" method="post" id="todoListForm">
         <h1>Todo List</h1>
-        <ul class="todoListInputs">
-          <li>
-            <label for="Task">Task:</label
-            ><input type="text" placeholder="Input Placeholder" />
-          </li>
-          <li>
-            <label for="Assignee">Assignee:</label
-            ><input type="text" placeholder="Input Placeholder" />
-          </li>
-        </ul>
+        <div class="todoListInputs">
+          <div>
+            <label for="task">Task:</label
+            ><input
+              type="text"
+              name="task"
+              id="task"
+              placeholder="Input Placeholder"
+              required
+            />
+          </div>
+          <div>
+            <label for="assignee">Assignee:</label
+            ><input
+              type="text"
+              name="assignee"
+              id="assignee"
+              placeholder="Input Placeholder"
+              required
+            />
+          </div>
+        </div>
         <button type="submit">Add Task</button>
       </form>
     </div>
