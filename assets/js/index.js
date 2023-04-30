@@ -8,6 +8,8 @@ const inputFields = document.querySelectorAll("#todoListForm input");
 // buttons
 const addTaskBtn = document.getElementById("addTask");
 
+// Arrays for validations
+
 const inputsRegex = {
   task: /^[A-Za-z 0-9]{3,32}$/,
   assignee: /^[A-Z][A-Za-z 0-9]{2,20}$/,
@@ -21,6 +23,26 @@ const inputsErrorMessage = {
 
 let inputsError = [];
 
+// Decelerations for the application
+
+let tasks = [];
+
+// Start Implementing Functionalities
+
+const updateLocalStorage = () => {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+};
+
+const fetchLocalStorage = () => {
+  const LocalTasks = JSON.parse(localStorage.getItem("tasks"));
+  if (LocalTasks) tasks = LocalTasks;
+};
+
+window.addEventListener("load", () => {
+  fetchLocalStorage();
+  console.log(tasks);
+});
+
 todoListForm.addEventListener("keyup", (event) => {
   if (event.target.tagName !== "INPUT") return;
 
@@ -28,7 +50,6 @@ todoListForm.addEventListener("keyup", (event) => {
 });
 
 function checkInput(input) {
-  console.log(input);
   const { id, value } = input;
 
   if (!inputsRegex[id].exec(value)) {
@@ -88,11 +109,23 @@ function clearForm() {
   addTaskBtn.setAttribute("disabled", "true");
 }
 
+const addTask = () => {
+  const task = { completed: false };
+  for (let i = 0; i < inputFields.length; i++) {
+    let { id, value } = inputFields[i];
+    task[id] = value;
+  }
+  tasks.push(task);
+};
+
 addTaskBtn.onclick = function () {
   checkAllInputs();
 
   if (inputsError.length !== 0) return;
 
-  //   Here I add the new task to the list and then clear the form
+  // Here I add the new task to the list and then clear the form
+
+  addTask();
+  updateLocalStorage();
   clearForm();
 };
