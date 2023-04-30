@@ -75,7 +75,11 @@ body,
   border: 1px solid black;
 }
 
-#todoListForm button:hover {
+#todoListForm button:disabled {
+  opacity: 0.5;
+}
+
+#todoListForm button:not([disabled]):hover {
   background-color: #fff;
   color: black;
 }
