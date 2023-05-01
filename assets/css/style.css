@@ -17,6 +17,10 @@ body,
   min-width: 80%;
 }
 
+.full-width {
+  width: 100% !important;
+}
+
 /* Common styling above */
 
 .body-container {
