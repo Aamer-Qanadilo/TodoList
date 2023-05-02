@@ -5,6 +5,7 @@ const inputAssignee = document.getElementById("assignee");
 const todoListForm = document.getElementById("todoListForm");
 const inputFields = document.querySelectorAll("#todoListForm input");
 const TodoListContainer = document.querySelector(".TodoListContainer");
+const listFilters = document.getElementById("list-genres");
 
 // buttons
 const addTaskBtn = document.getElementById("addTask");
@@ -27,25 +28,29 @@ let inputsError = [];
 // Decelerations for the application
 
 let tasks = [];
-// const filters = { All: "" };
 
 // Start Implementing Functionalities
 
 const updateLocalStorage = () => {
   localStorage.setItem("tasks", JSON.stringify(tasks));
-  displayTasks();
+  displayTasks(listFilters.value);
 };
 
 const fetchLocalStorage = () => {
   const LocalTasks = JSON.parse(localStorage.getItem("tasks"));
   if (LocalTasks) tasks = LocalTasks;
 
-  displayTasks();
+  displayTasks(listFilters.value);
 };
 
 window.addEventListener("load", () => {
   fetchLocalStorage();
   console.log(tasks);
+});
+
+listFilters.addEventListener("change", (event) => {
+  console.log(event.target.value);
+  displayTasks(event.target.value);
 });
 
 todoListForm.addEventListener("keyup", (event) => {
@@ -129,7 +134,7 @@ function clearForm() {
 }
 
 const addTask = () => {
-  const task = { completed: false };
+  const task = { status: "started" };
   inputFields.forEach((input, index) => {
     let { id, value } = input;
     task[id] = value;
@@ -162,22 +167,29 @@ const deleteTask = (taskCardNode) => {
 
 const toggleDone = (taskCardNode) => {
   const index = taskCardNode.ariaRowIndex;
-  tasks[index].completed = !tasks[index].completed;
+
+  tasks[index].status =
+    tasks[index].status === "started" ? "finished" : "started";
   updateLocalStorage();
 };
 
-const displayTasks = () => {
+const displayTasks = (filter) => {
   let tasksCardsTemplate = "";
 
   tasks.forEach((task, index) => {
-    tasksCardsTemplate += `
+    if (task.status.toLowerCase().includes(filter.toLowerCase())) {
+      tasksCardsTemplate += `
         <div class="taskCard" aria-rowindex="${index}">
           <div class="taskCardContent">
             <p class="${
-              task.completed ? "opacity-50 text-decoration-line-through" : ""
+              task.status === "finished"
+                ? "opacity-50 text-decoration-line-through"
+                : ""
             }">${task.task}</p>
             <p class="${
-              task.completed ? "opacity-50 text-decoration-line-through" : ""
+              task.status === "finished"
+                ? "opacity-50 text-decoration-line-through"
+                : ""
             }">${task.assignee}</p>
           </div>
           <div class="taskCardButtons">
@@ -188,15 +200,20 @@ const displayTasks = () => {
             ></i>
             <i 
                 class='${
-                  task.completed
+                  task.status === "finished"
                     ? "fa-solid fa-circle-xmark"
                     : "fa-solid fa-circle-check"
                 }'
-                style='${task.completed ? "color: #df0c0c" : "color: #207e44"}'
+                style='${
+                  task.status === "finished"
+                    ? "color: #df0c0c"
+                    : "color: #207e44"
+                }'
                 aria-label="Toggle Task Completed"
             ></i>
           </div>
         </div>`;
+    }
   });
 
   TodoListContainer.innerHTML = tasksCardsTemplate;
