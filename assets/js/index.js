@@ -221,7 +221,11 @@ const toggleDone = (taskCardNode) => {
   tasks[index].status =
     tasks[index].status === "started" ? "finished" : "started";
   updateLocalStorage();
-  displayTasks(listFilters.value, searchField.value);
+
+  const newCard = renderCard(tasks[index], index);
+  taskCardNode.replaceWith(newCard);
+  // taskCardNode.classList.toggle("completed");
+  // displayTasks(listFilters.value, searchField.value);
 };
 
 const displayTasks = (filter, searchInput) => {
@@ -273,6 +277,49 @@ const displayTasks = (filter, searchInput) => {
   });
 
   TodoListContainer.innerHTML = tasksCardsTemplate;
+};
+
+const renderCard = (task, index) => {
+  const newCard = document.createElement("div");
+  newCard.ariaRowIndex = index;
+
+  newCard.classList.add("taskCard");
+
+  if (task.status === "finished") newCard.classList.add("completed");
+  newCard.innerHTML = `<div class="taskCardContent">
+                        <p class="${
+                          task.status === "finished"
+                            ? "opacity-50 text-decoration-line-through"
+                            : ""
+                        }" aria-label="task">${task.task}</p>
+                        <p class="${
+                          task.status === "finished"
+                            ? "opacity-50 text-decoration-line-through"
+                            : ""
+                        }" aria-label="assignee">${task.assignee}</p>
+                      </div>
+                      <div class="taskCardButtons">
+                        <i
+                          class="fa-solid fa-trash"
+                          style="color: #FF1E00"
+                          aria-label="Delete task"
+                        ></i>
+                        <i 
+                            class='${
+                              task.status === "finished"
+                                ? "fa-solid fa-circle-xmark"
+                                : "fa-solid fa-circle-check"
+                            }'
+                            style='${
+                              task.status === "finished"
+                                ? "color: #df0c0c"
+                                : "color: #207e44"
+                            }'
+                            aria-label="Toggle Task Completed"
+                        ></i>
+                      </div>`;
+
+  return newCard;
 };
 
 addTaskBtn.onclick = function (event) {
