@@ -5,6 +5,8 @@ const inputAssignee = document.getElementById("assignee");
 const todoListForm = document.getElementById("todoListForm");
 const inputFields = document.querySelectorAll("#todoListForm input");
 const TodoListContainer = document.querySelector(".TodoListContainer");
+const listFilters = document.getElementById("list-genres");
+const searchField = document.getElementById("search-field");
 
 // buttons
 const addTaskBtn = document.getElementById("addTask");
@@ -29,7 +31,6 @@ let inputsError = [];
 let updateTaskField = null;
 let updateTaskCard;
 let tasks = [];
-// const filters = { All: "" };
 
 // Start Implementing Functionalities
 
@@ -41,7 +42,7 @@ const fetchLocalStorage = () => {
   const LocalTasks = JSON.parse(localStorage.getItem("tasks"));
   if (LocalTasks) tasks = LocalTasks;
 
-  displayTasks();
+  displayTasks(listFilters.value, searchField.value);
 };
 
 window.addEventListener("load", () => {
@@ -67,6 +68,18 @@ document.addEventListener("click", (event) => {
       updateTaskField = null;
     }
   }
+});
+
+listFilters.addEventListener("change", (event) => {
+  displayTasks(event.target.value, searchField.value);
+});
+
+searchField.addEventListener("keyup", (event) => {
+  displayTasks(listFilters.value, event.target.value);
+});
+
+searchField.addEventListener("change", (event) => {
+  displayTasks(listFilters.value, event.target.value);
 });
 
 todoListForm.addEventListener("keyup", (event) => {
@@ -170,7 +183,7 @@ function clearForm() {
 }
 
 const addTask = () => {
-  const task = { completed: false };
+  const task = { status: "started" };
   inputFields.forEach((input, index) => {
     let { id, value } = input;
     task[id] = value;
@@ -195,7 +208,7 @@ const deleteTask = (taskCardNode) => {
       tasks.splice(index, 1);
 
       updateLocalStorage();
-      displayTasks();
+      displayTasks(listFilters.value, searchField.value);
 
       Swal.fire("Deleted!", "Task has been deleted.", "success");
     }
@@ -204,25 +217,39 @@ const deleteTask = (taskCardNode) => {
 
 const toggleDone = (taskCardNode) => {
   const index = taskCardNode.ariaRowIndex;
-  tasks[index].completed = !tasks[index].completed;
+
+  tasks[index].status =
+    tasks[index].status === "started" ? "finished" : "started";
   updateLocalStorage();
-  displayTasks();
+
+  const newCard = renderCard(tasks[index], index);
+  taskCardNode.replaceWith(newCard);
+  // taskCardNode.classList.toggle("completed");
+  // displayTasks(listFilters.value, searchField.value);
 };
 
-const displayTasks = () => {
+const displayTasks = (filter, searchInput) => {
   let tasksCardsTemplate = "";
 
   tasks.forEach((task, index) => {
-    tasksCardsTemplate += `
+    if (
+      task.status.toLowerCase().includes(filter.toLowerCase()) &&
+      task.task.toLowerCase().includes(searchInput.toLowerCase())
+    ) {
+      tasksCardsTemplate += `
         <div class="taskCard ${
-          task.completed ? "completed" : ""
+          task.status === "finished" ? "completed" : ""
         }" aria-rowindex="${index}">
           <div class="taskCardContent">
             <p class="${
-              task.completed ? "text-decoration-line-through" : ""
+              task.status === "finished"
+                ? "opacity-50 text-decoration-line-through"
+                : ""
             }" aria-label="task">${task.task}</p>
             <p class="${
-              task.completed ? "text-decoration-line-through" : ""
+              task.status === "finished"
+                ? "opacity-50 text-decoration-line-through"
+                : ""
             }" aria-label="assignee">${task.assignee}</p>
           </div>
           <div class="taskCardButtons">
@@ -233,18 +260,66 @@ const displayTasks = () => {
             ></i>
             <i 
                 class='${
-                  task.completed
+                  task.status === "finished"
                     ? "fa-solid fa-circle-xmark"
                     : "fa-solid fa-circle-check"
                 }'
-                style='${task.completed ? "color: #FF1E00" : "color: #207e44"}'
+                style='${
+                  task.status === "finished"
+                    ? "color: #df0c0c"
+                    : "color: #207e44"
+                }'
                 aria-label="Toggle Task Completed"
             ></i>
           </div>
         </div>`;
+    }
   });
 
   TodoListContainer.innerHTML = tasksCardsTemplate;
+};
+
+const renderCard = (task, index) => {
+  const newCard = document.createElement("div");
+  newCard.ariaRowIndex = index;
+
+  newCard.classList.add("taskCard");
+
+  if (task.status === "finished") newCard.classList.add("completed");
+  newCard.innerHTML = `<div class="taskCardContent">
+                        <p class="${
+                          task.status === "finished"
+                            ? "opacity-50 text-decoration-line-through"
+                            : ""
+                        }" aria-label="task">${task.task}</p>
+                        <p class="${
+                          task.status === "finished"
+                            ? "opacity-50 text-decoration-line-through"
+                            : ""
+                        }" aria-label="assignee">${task.assignee}</p>
+                      </div>
+                      <div class="taskCardButtons">
+                        <i
+                          class="fa-solid fa-trash"
+                          style="color: #FF1E00"
+                          aria-label="Delete task"
+                        ></i>
+                        <i 
+                            class='${
+                              task.status === "finished"
+                                ? "fa-solid fa-circle-xmark"
+                                : "fa-solid fa-circle-check"
+                            }'
+                            style='${
+                              task.status === "finished"
+                                ? "color: #df0c0c"
+                                : "color: #207e44"
+                            }'
+                            aria-label="Toggle Task Completed"
+                        ></i>
+                      </div>`;
+
+  return newCard;
 };
 
 addTaskBtn.onclick = function (event) {
@@ -257,6 +332,6 @@ addTaskBtn.onclick = function (event) {
 
   addTask();
   updateLocalStorage();
-  displayTasks();
+  displayTasks(listFilters.value, searchField.value);
   clearForm();
 };
