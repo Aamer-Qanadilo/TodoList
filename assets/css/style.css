@@ -21,6 +21,15 @@ body,
   width: 100% !important;
 }
 
+.section-seperator {
+  width: 80%;
+  height: 1px;
+  opacity: var(--paragraphOpacity);
+  background-color: var(--textColor);
+  margin: 3rem auto;
+  position: relative;
+}
+
 /* Common styling above */
 
 .body-container {
@@ -128,6 +137,25 @@ body,
 
 .TodoListContainer .taskCard .taskCardButtons * {
   cursor: pointer;
+}
+
+/* Start of search field */
+
+.search-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#search-field {
+  width: 75%;
+  padding: 5px 12px;
+}
+
+#list-genres {
+  align-self: flex-start;
+  margin: 10px 0 10px 12.5%;
 }
 
 /* Media Queries */
