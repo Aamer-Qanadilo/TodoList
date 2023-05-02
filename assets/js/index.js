@@ -4,6 +4,7 @@ const inputTask = document.getElementById("task");
 const inputAssignee = document.getElementById("assignee");
 const todoListForm = document.getElementById("todoListForm");
 const inputFields = document.querySelectorAll("#todoListForm input");
+const TodoListContainer = document.querySelector(".TodoListContainer");
 
 // buttons
 const addTaskBtn = document.getElementById("addTask");
@@ -26,16 +27,20 @@ let inputsError = [];
 // Decelerations for the application
 
 let tasks = [];
+// const filters = { All: "" };
 
 // Start Implementing Functionalities
 
 const updateLocalStorage = () => {
   localStorage.setItem("tasks", JSON.stringify(tasks));
+  displayTasks();
 };
 
 const fetchLocalStorage = () => {
   const LocalTasks = JSON.parse(localStorage.getItem("tasks"));
   if (LocalTasks) tasks = LocalTasks;
+
+  displayTasks();
 };
 
 window.addEventListener("load", () => {
@@ -49,6 +54,19 @@ todoListForm.addEventListener("keyup", (event) => {
   checkInput(event.target);
 });
 
+TodoListContainer.addEventListener("click", (event) => {
+  if (event.target.tagName !== "I") return;
+
+  const taskCard = event.target.closest(".taskCard");
+  const { ariaLabel } = event.target;
+
+  if (ariaLabel == "Delete task") {
+    deleteTask(taskCard);
+  } else if (ariaLabel == "Toggle Task Completed") {
+    toggleDone(taskCard);
+  }
+});
+
 function checkInput(input) {
   const { id, value } = input;
 
@@ -60,13 +78,15 @@ function checkInput(input) {
 
     //These next lines is used to add a paragraph with the error message
     if (input.parentElement.childElementCount < 3) {
-      const para = document.createElement(`p`);
-      const node = document.createTextNode(inputsErrorMessage[id]);
+      const alertParagraph = document.createElement(`p`);
+      const alertParagraphText = document.createTextNode(
+        inputsErrorMessage[id],
+      );
 
-      para.appendChild(node);
-      para.classList.add("alert", "alert-danger", "w-100");
+      alertParagraph.appendChild(alertParagraphText);
+      alertParagraph.classList.add("alert", "alert-danger", "full-width");
 
-      input.parentElement.appendChild(para);
+      input.parentElement.appendChild(alertParagraph);
     }
   } else {
     checkAllInputs();
@@ -80,45 +100,110 @@ function checkInput(input) {
 }
 
 function checkAllInputs() {
-  for (let i = 0; i < inputFields.length; i++) {
-    let { id, value } = inputFields[i];
+  inputFields.forEach((input) => {
+    let { id, value } = input;
     if (!inputsRegex[id].exec(value)) {
       addTaskBtn.setAttribute("disabled", "true");
       inputsError.push(inputsErrorMessage[id]);
-      checkInput(inputFields[i]);
+      checkInput(input);
       return;
     }
-  }
+  });
+
   inputsError = [];
   addTaskBtn.removeAttribute("disabled");
 }
 
 function clearForm() {
-  for (let i = 0; i < inputFields.length; i++) {
-    inputFields[i].value = "";
-    inputFields[i].classList.remove("is-valid");
-    inputFields[i].classList.remove("is-invalid");
-    if (inputFields[i].parentElement.childElementCount == 3) {
+  inputFields.forEach((input) => {
+    input.value = "";
+    input.classList.remove("is-valid");
+    input.classList.remove("is-invalid");
+    if (input.parentElement.childElementCount == 3) {
       //This next lines is used to remove the paragraph with the error message
-      inputFields[i].parentElement.removeChild(
-        inputFields[i].parentElement.children[2],
-      );
+      input.parentElement.removeChild(input.parentElement.children[2]);
     }
-  }
+  });
 
   addTaskBtn.setAttribute("disabled", "true");
 }
 
 const addTask = () => {
   const task = { completed: false };
-  for (let i = 0; i < inputFields.length; i++) {
-    let { id, value } = inputFields[i];
+  inputFields.forEach((input, index) => {
+    let { id, value } = input;
     task[id] = value;
-  }
+  });
   tasks.push(task);
 };
 
-addTaskBtn.onclick = function () {
+const deleteTask = (taskCardNode) => {
+  const parentNode = taskCardNode.parentElement;
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Delete!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const index = taskCardNode.ariaRowIndex;
+      parentNode.removeChild(taskCardNode);
+      tasks.splice(index, 1);
+
+      updateLocalStorage();
+
+      Swal.fire("Deleted!", "Task has been deleted.", "success");
+    }
+  });
+};
+
+const toggleDone = (taskCardNode) => {
+  const index = taskCardNode.ariaRowIndex;
+  tasks[index].completed = !tasks[index].completed;
+  updateLocalStorage();
+};
+
+const displayTasks = () => {
+  let tasksCardsTemplate = "";
+
+  tasks.forEach((task, index) => {
+    tasksCardsTemplate += `
+        <div class="taskCard" aria-rowindex="${index}">
+          <div class="taskCardContent">
+            <p class="${
+              task.completed ? "opacity-50 text-decoration-line-through" : ""
+            }">${task.task}</p>
+            <p class="${
+              task.completed ? "opacity-50 text-decoration-line-through" : ""
+            }">${task.assignee}</p>
+          </div>
+          <div class="taskCardButtons">
+            <i
+              class="fa-solid fa-trash"
+              style="color: #df0c0c"
+              aria-label="Delete task"
+            ></i>
+            <i 
+                class='${
+                  task.completed
+                    ? "fa-solid fa-circle-xmark"
+                    : "fa-solid fa-circle-check"
+                }'
+                style='${task.completed ? "color: #df0c0c" : "color: #207e44"}'
+                aria-label="Toggle Task Completed"
+            ></i>
+          </div>
+        </div>`;
+  });
+
+  TodoListContainer.innerHTML = tasksCardsTemplate;
+};
+
+addTaskBtn.onclick = function (event) {
+  event.preventDefault();
   checkAllInputs();
 
   if (inputsError.length !== 0) return;
