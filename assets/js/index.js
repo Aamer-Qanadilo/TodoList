@@ -26,6 +26,8 @@ let inputsError = [];
 
 // Decelerations for the application
 
+let updateTaskField = null;
+let updateTaskCard;
 let tasks = [];
 // const filters = { All: "" };
 
@@ -33,7 +35,6 @@ let tasks = [];
 
 const updateLocalStorage = () => {
   localStorage.setItem("tasks", JSON.stringify(tasks));
-  displayTasks();
 };
 
 const fetchLocalStorage = () => {
@@ -48,6 +49,26 @@ window.addEventListener("load", () => {
   console.log(tasks);
 });
 
+document.addEventListener("click", (event) => {
+  const { tagName } = event.target;
+
+  if (updateTaskField) {
+    if (tagName !== "INPUT") {
+      const updateTaskInput = updateTaskCard.querySelector("input");
+      updateTaskField.innerText = updateTaskInput.value;
+      updateTaskInput.replaceWith(updateTaskField);
+
+      const index = updateTaskCard.ariaRowIndex;
+      const { ariaLabel } = updateTaskField;
+
+      tasks[index][ariaLabel] = updateTaskInput.value;
+      updateLocalStorage();
+
+      updateTaskField = null;
+    }
+  }
+});
+
 todoListForm.addEventListener("keyup", (event) => {
   if (event.target.tagName !== "INPUT") return;
 
@@ -55,15 +76,35 @@ todoListForm.addEventListener("keyup", (event) => {
 });
 
 TodoListContainer.addEventListener("click", (event) => {
-  if (event.target.tagName !== "I") return;
-
+  const { tagName } = event.target;
   const taskCard = event.target.closest(".taskCard");
-  const { ariaLabel } = event.target;
 
-  if (ariaLabel == "Delete task") {
-    deleteTask(taskCard);
-  } else if (ariaLabel == "Toggle Task Completed") {
-    toggleDone(taskCard);
+  if (tagName === "I") {
+    const { ariaLabel } = event.target;
+
+    if (ariaLabel == "Delete task") {
+      deleteTask(taskCard);
+    } else if (ariaLabel == "Toggle Task Completed") {
+      toggleDone(taskCard);
+    }
+  } else if (tagName === "P") {
+    if (!updateTaskField) {
+      const { innerText } = event.target;
+      const inputField = document.createElement(`input`);
+      inputField.type = "text";
+      inputField.classList.add("mb-2");
+      inputField.value = innerText;
+
+      // This will save a reference to the replaced Node's Card
+      updateTaskCard = taskCard;
+
+      // This will save a reference to the replaced Node
+      updateTaskField = event.target.cloneNode(true);
+
+      event.target.replaceWith(inputField);
+
+      event.stopPropagation();
+    }
   }
 });
 
@@ -154,6 +195,7 @@ const deleteTask = (taskCardNode) => {
       tasks.splice(index, 1);
 
       updateLocalStorage();
+      displayTasks();
 
       Swal.fire("Deleted!", "Task has been deleted.", "success");
     }
@@ -164,6 +206,7 @@ const toggleDone = (taskCardNode) => {
   const index = taskCardNode.ariaRowIndex;
   tasks[index].completed = !tasks[index].completed;
   updateLocalStorage();
+  displayTasks();
 };
 
 const displayTasks = () => {
@@ -171,19 +214,21 @@ const displayTasks = () => {
 
   tasks.forEach((task, index) => {
     tasksCardsTemplate += `
-        <div class="taskCard" aria-rowindex="${index}">
+        <div class="taskCard ${
+          task.completed ? "completed" : ""
+        }" aria-rowindex="${index}">
           <div class="taskCardContent">
             <p class="${
-              task.completed ? "opacity-50 text-decoration-line-through" : ""
-            }">${task.task}</p>
+              task.completed ? "text-decoration-line-through" : ""
+            }" aria-label="task">${task.task}</p>
             <p class="${
-              task.completed ? "opacity-50 text-decoration-line-through" : ""
-            }">${task.assignee}</p>
+              task.completed ? "text-decoration-line-through" : ""
+            }" aria-label="assignee">${task.assignee}</p>
           </div>
           <div class="taskCardButtons">
             <i
               class="fa-solid fa-trash"
-              style="color: #df0c0c"
+              style="color: #FF1E00"
               aria-label="Delete task"
             ></i>
             <i 
@@ -192,7 +237,7 @@ const displayTasks = () => {
                     ? "fa-solid fa-circle-xmark"
                     : "fa-solid fa-circle-check"
                 }'
-                style='${task.completed ? "color: #df0c0c" : "color: #207e44"}'
+                style='${task.completed ? "color: #FF1E00" : "color: #207e44"}'
                 aria-label="Toggle Task Completed"
             ></i>
           </div>
@@ -212,5 +257,6 @@ addTaskBtn.onclick = function (event) {
 
   addTask();
   updateLocalStorage();
+  displayTasks();
   clearForm();
 };

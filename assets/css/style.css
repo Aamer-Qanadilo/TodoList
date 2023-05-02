@@ -120,6 +120,11 @@ body,
   box-shadow: var(--boxShadow);
 }
 
+.TodoListContainer .taskCard.completed {
+  background-color: #59ce8f;
+  color: #e8f9fd;
+}
+
 .TodoListContainer .taskCard .taskCardContent {
   flex-grow: 10;
 }
