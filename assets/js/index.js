@@ -6,6 +6,7 @@ const todoListForm = document.getElementById("todoListForm");
 const inputFields = document.querySelectorAll("#todoListForm input");
 const TodoListContainer = document.querySelector(".TodoListContainer");
 const listFilters = document.getElementById("list-genres");
+const searchField = document.getElementById("search-field");
 
 // buttons
 const addTaskBtn = document.getElementById("addTask");
@@ -41,7 +42,7 @@ const fetchLocalStorage = () => {
   const LocalTasks = JSON.parse(localStorage.getItem("tasks"));
   if (LocalTasks) tasks = LocalTasks;
 
-  displayTasks(listFilters.value);
+  displayTasks(listFilters.value, searchField.value);
 };
 
 window.addEventListener("load", () => {
@@ -70,8 +71,15 @@ document.addEventListener("click", (event) => {
 });
 
 listFilters.addEventListener("change", (event) => {
-  console.log(event.target.value);
-  displayTasks(event.target.value);
+  displayTasks(event.target.value, searchField.value);
+});
+
+searchField.addEventListener("keyup", (event) => {
+  displayTasks(listFilters.value, event.target.value);
+});
+
+searchField.addEventListener("change", (event) => {
+  displayTasks(listFilters.value, event.target.value);
 });
 
 todoListForm.addEventListener("keyup", (event) => {
@@ -200,7 +208,7 @@ const deleteTask = (taskCardNode) => {
       tasks.splice(index, 1);
 
       updateLocalStorage();
-      displayTasks();
+      displayTasks(listFilters.value, searchField.value);
 
       Swal.fire("Deleted!", "Task has been deleted.", "success");
     }
@@ -213,29 +221,32 @@ const toggleDone = (taskCardNode) => {
   tasks[index].status =
     tasks[index].status === "started" ? "finished" : "started";
   updateLocalStorage();
-  displayTasks();
+  displayTasks(listFilters.value, searchField.value);
 };
 
-const displayTasks = (filter) => {
+const displayTasks = (filter, searchInput) => {
   let tasksCardsTemplate = "";
 
   tasks.forEach((task, index) => {
-    if (task.status.toLowerCase().includes(filter.toLowerCase())) {
+    if (
+      task.status.toLowerCase().includes(filter.toLowerCase()) &&
+      task.task.toLowerCase().includes(searchInput.toLowerCase())
+    ) {
       tasksCardsTemplate += `
         <div class="taskCard ${
-          task.completed ? "completed" : ""
+          task.status === "finished" ? "completed" : ""
         }" aria-rowindex="${index}">
           <div class="taskCardContent">
             <p class="${
               task.status === "finished"
                 ? "opacity-50 text-decoration-line-through"
                 : ""
-            }">${task.task}</p>
+            }" aria-label="task">${task.task}</p>
             <p class="${
               task.status === "finished"
                 ? "opacity-50 text-decoration-line-through"
                 : ""
-            }">${task.assignee}</p>
+            }" aria-label="assignee">${task.assignee}</p>
           </div>
           <div class="taskCardButtons">
             <i
@@ -274,6 +285,6 @@ addTaskBtn.onclick = function (event) {
 
   addTask();
   updateLocalStorage();
-  displayTasks();
+  displayTasks(listFilters.value, searchField.value);
   clearForm();
 };
