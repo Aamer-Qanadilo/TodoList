@@ -222,8 +222,15 @@ const toggleDone = (taskCardNode) => {
     tasks[index].status === "started" ? "finished" : "started";
   updateLocalStorage();
 
-  const newCard = renderCard(tasks[index], index);
-  taskCardNode.replaceWith(newCard);
+  if (
+    tasks[index].status.toLowerCase().includes(listFilters.value.toLowerCase())
+  ) {
+    const newCard = renderCard(tasks[index], index);
+    taskCardNode.replaceWith(newCard);
+  } else {
+    taskCardNode.remove();
+  }
+
   // taskCardNode.classList.toggle("completed");
   // displayTasks(listFilters.value, searchField.value);
 };

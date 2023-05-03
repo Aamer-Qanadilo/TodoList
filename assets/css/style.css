@@ -119,11 +119,11 @@ body,
   border-radius: 5px;
   background-color: #fff;
   box-shadow: var(--boxShadow);
-  animation: left-to-right-animation 0.6s 1;
+  animation: left-to-right-animation 0.3s 1;
 }
 
 .TodoListContainer .taskCard:nth-child(even) {
-  animation: right-to-left-animation 0.6s 1;
+  animation: right-to-left-animation 0.3s 1;
 }
 
 .TodoListContainer .taskCard.completed {
