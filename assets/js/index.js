@@ -229,6 +229,11 @@ const toggleDone = (taskCardNode) => {
     taskCardNode.replaceWith(newCard);
   } else {
     taskCardNode.remove();
+
+    console.log(TodoListContainer.childElementCount);
+    if (!TodoListContainer.childElementCount) {
+      handleEmptyList(TodoListContainer);
+    }
   }
 
   // taskCardNode.classList.toggle("completed");
@@ -284,6 +289,16 @@ const displayTasks = (filter, searchInput) => {
   });
 
   TodoListContainer.innerHTML = tasksCardsTemplate;
+
+  if (!tasks.length || tasksCardsTemplate === "")
+    handleEmptyList(TodoListContainer);
+};
+
+const handleEmptyList = (TodoListContainer) => {
+  TodoListContainer.innerHTML = `
+      <div class="empty-list">
+        <p>Nothing to show here, please add new ones to show..</p>                        
+      </div>`;
 };
 
 const renderCard = (task, index) => {
